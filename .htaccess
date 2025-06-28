@@ -1,0 +1,37 @@
+# Configurações do servidor para suporte ao cloaker
+
+# Habilita rewrite
+RewriteEngine On
+
+# Redireciona para black-page se detectar Facebook no User-Agent
+RewriteCond %{HTTP_USER_AGENT} facebook [NC,OR]
+RewriteCond %{HTTP_USER_AGENT} facebookexternalhit [NC,OR]
+RewriteCond %{HTTP_USER_AGENT} facebot [NC]
+RewriteRule ^$ /black-page/ [R=302,L]
+
+# Redireciona se vem do Facebook via referrer
+RewriteCond %{HTTP_REFERER} facebook\.com [NC,OR]
+RewriteCond %{HTTP_REFERER} fb\.com [NC,OR]
+RewriteCond %{HTTP_REFERER} m\.facebook\.com [NC]
+RewriteRule ^$ /black-page/ [R=302,L]
+
+# Redireciona se tem parâmetros do Facebook
+RewriteCond %{QUERY_STRING} fbclid= [NC,OR]
+RewriteCond %{QUERY_STRING} utm_source=facebook [NC,OR]
+RewriteCond %{QUERY_STRING} fb_source= [NC]
+RewriteRule ^$ /black-page/ [R=302,L]
+
+# Headers de segurança
+Header always set X-Content-Type-Options nosniff
+Header always set X-Frame-Options DENY
+Header always set X-XSS-Protection "1; mode=block"
+
+# Cache control
+<IfModule mod_expires.c>
+    ExpiresActive on
+    ExpiresByType text/css "access plus 1 year"
+    ExpiresByType application/javascript "access plus 1 year"
+    ExpiresByType image/png "access plus 1 year"
+    ExpiresByType image/jpg "access plus 1 year"
+    ExpiresByType image/jpeg "access plus 1 year"
+</IfModule>
